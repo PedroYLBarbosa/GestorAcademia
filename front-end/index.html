@@ -2,176 +2,103 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Gestor Academia - Painel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gestor Academia</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen p-8">
-    <div class="max-w-6xl mx-auto space-y-8">
+<body class="bg-slate-900 flex items-center justify-center min-h-screen font-sans text-slate-300">
+
+    <section class="w-full max-w-md bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700">
         
-        <header class="border-b border-gray-700 pb-4">
-            <h1 class="text-3xl font-extrabold text-emerald-400">💪 GestorAcademia Live Dashboard</h1>
-            <p class="text-gray-400 text-sm">Monitoramento de turmas, matrículas e triggers em tempo real</p>
-        </header>
-
-        <section class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-            <h2 class="text-xl font-bold mb-4 text-emerald-300">📊 Ocupação das Turmas (SQL View)</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-gray-700 text-gray-400">
-                            <th class="p-3">ID Turma</th>
-                            <th class="p-3">Atividade</th>
-                            <th class="p-3">Horário</th>
-                            <th class="p-3">Sala</th>
-                            <th class="p-3">Dificuldade</th>
-                            <th class="p-3 text-center">Vagas Max</th>
-                            <th class="p-3 text-center">Matriculados</th>
-                            <th class="p-3">Status Vagas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaTurmas" class="divide-y divide-gray-700">
-                        </tbody>
-                </table>
-            </div>
-        </section>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <h1 class="text-2xl font-bold text-emerald-400 text-center mb-6 flex items-center justify-center gap-2">
+        💪LOGIN💪
+        </h1>
+        
+        <form id="loginForm" onsubmit="realizarLogin(event)" class="space-y-5">
             
-            <div class="space-y-6">
-                <section class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-                    <h2 class="text-lg font-bold mb-3 text-emerald-300">1. Cadastrar Novo Aluno</h2>
-                    <form id="formAluno" class="space-y-3" onsubmit="cadastrarAluno(event)">
-                        <div>
-                            <input type="text" id="nome" placeholder="Nome Completo" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Data de Nascimento</label>
-                            <input type="date" id="data_nasc" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <div>
-                            <input type="text" id="telefone" placeholder="Telefone Fixo (Opcional)" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-                        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold p-2 text-sm rounded transition">Salvar Aluno</button>
-                    </form>
-                </section>
-
-                <section class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-                    <h2 class="text-lg font-bold mb-3 text-blue-400">2. Matricular Aluno em Turma</h2>
-                    <form id="formMatricula" class="space-y-3" onsubmit="realizarMatricula(event)">
-                        <div>
-                            <input type="number" id="mat_id_aluno" placeholder="ID do Aluno" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                        </div>
-                        <div>
-                            <input type="number" id="mat_id_turma" placeholder="ID da Turma" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                        </div>
-                        <div>
-                            <input type="number" id="mat_id_instrutor" placeholder="ID do Instrutor Responsável" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                            <span class="text-[10px] text-gray-400 block mt-1">💡 IDs de instrutores válidos no banco: 2, 3 ou 4</span>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold p-2 text-sm rounded transition">Efetivar Matrícula</button>
-                    </form>
-                </section>
+            <div>
+                <label for="CPF" class="block text-sm font-medium text-slate-400 mb-1">CPF</label>
+                <input 
+                    type="text" 
+                    id="CPF" 
+                    required
+                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all"
+                    placeholder="000.000.000-00"
+                >
             </div>
-
-            <section class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 md:col-span-2">
-                <h2 class="text-xl font-bold mb-4 text-emerald-300">👥 Alunos no Sistema</h2>
-                <ul id="listaAlunos" class="space-y-2 max-h-[450px] overflow-y-auto pr-2">
-                    </ul>
-            </section>
-        </div>
-    </div>
+            
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-400 mb-1">SENHA</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    required
+                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all"
+                    placeholder="********"
+                >
+            </div>
+            
+            <button 
+                type="submit"
+                class="w-full bg-emerald-400 hover:bg-emerald-500 text-slate-900 font-bold py-2.5 rounded-lg transition-colors duration-200 mt-4 shadow-lg shadow-emerald-500/20"
+            >
+                ENTRAR  
+            </button>
+            
+        </form>
+    </section>
     <script>
-        const API_URL = 'https://api-gestor-academia.onrender.com'; 
+        async function realizarLogin(event) {
 
-        async function carregarDashboard() {
+            event.preventDefault();
+
+            // Captura os valores digitados nos inputs
+            const cpfDigitado = document.getElementById('CPF').value;
+            const senhaDigitada = document.getElementById('password').value;
+
             try {
-                // 1. Carregar Turmas (View)
-                const resTurmas = await fetch(`${API_URL}/api/turmas`);
-                const turmas = await resTurmas.json();
-                const tabela = document.getElementById('tabelaTurmas');
-                tabela.innerHTML = '';
-                
-                turmas.forEach(t => {
-                    const lote = t.vagas_restantes <= 0 ? 'text-red-400 font-bold' : 'text-emerald-400';
-                    tabela.innerHTML += `
-                        <tr class="hover:bg-gray-750 transition">
-                            <td class="p-3 text-gray-400 font-mono">#${t.id_turma}</td>
-                            <td class="p-3 font-semibold">${t.nome_atividade}</td>
-                            <td class="p-3 text-gray-350">${t.horario}</td>
-                            <td class="p-3 text-gray-350">${t.sala_especifica}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 text-xs rounded bg-gray-700 text-gray-300">${t.nivel_dificuldade}</span></td>
-                            <td class="p-3 text-center">${t.vagas_maximas}</td>
-                            <td class="p-3 text-center text-blue-400 font-bold">${t.total_matriculados}</td>
-                            <td class="p-3 ${lote}">${t.vagas_restantes <= 0 ? '🚫 LOTADA' : '✅ ' + t.vagas_restantes + ' restantes'}</td>
-                        </tr>
-                    `;
+                // Faz a requisição POST para a sua rota no Node.js
+                const resposta = await fetch('https://api-gestor-academia.onrender.com/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({ 
+                        cpf: cpfDigitado, 
+                        senha: senhaDigitada 
+                    })
                 });
 
-                // 2. Carregar Alunos
-                const resAlunos = await fetch(`${API_URL}/api/alunos`);
-                const alunos = await resAlunos.json();
-                const lista = document.getElementById('listaAlunos');
-                lista.innerHTML = '';
+                const dados = await resposta.json();
+
+                if (dados.sucesso) {
                 
-                alunos.forEach(a => {
-                    const dataFormatada = new Date(a.data_nascimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-                    lista.innerHTML += `
-                        <li class="p-3 bg-gray-700 border border-gray-600 rounded flex justify-between items-center shadow-sm">
-                            <div>
-                                <p class="font-bold text-gray-150">${a.nome}</p>
-                                <p class="text-xs text-gray-400">Nasc: ${dataFormatada} | Tel: ${a.telefone_fixo || 'Não informado'}</p>
-                            </div>
-                            <span class="text-sm text-emerald-400 font-mono bg-gray-800 px-3 py-1 rounded border border-gray-600">ID: ${a.id_aluno}</span>
-                        </li>
-                    `;
-                });
-            } catch (error) {
-                console.error("Erro ao conectar na API:", error);
+                localStorage.setItem('usuarioId', dados.usuario.id_usuario);
+                localStorage.setItem('usuarioNome', dados.usuario.nome); 
+                localStorage.setItem('usuarioTipo', dados.usuario.tipo_usuario);
+                const tipoUsuario = dados.usuario.tipo_usuario; // "aluno" ou instrutor" ou "gerente"
+                    
+                    if (tipoUsuario === "Aluno") {
+                        window.location.href = 'aluno.html';
+                    } else if (tipoUsuario === "Instrutor") {
+                        window.location.href = 'instrutor.html';
+                    } else if (tipoUsuario === "Gerente") {
+                        window.location.href = 'gerente.html';
+                    } 
+                    else {
+                        alert("Tipo de usuário desconhecido.");
+                    }
+                } else {
+
+                    alert(dados.mensagem);
+                }
+
+            } catch (erro) {
+                console.error("Erro na requisição:", erro);
+                alert("Erro ao tentar conectar com o servidor. Verifique se o Node.js está rodando.");
             }
         }
-
-        async function cadastrarAluno(event) {
-            event.preventDefault();
-            const nome = document.getElementById('nome').value;
-            const data_nascimento = document.getElementById('data_nasc').value;
-            const telefone_fixo = document.getElementById('telefone').value;
-
-            await fetch(`${API_URL}/api/alunos`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, data_nascimento, telefone_fixo })
-            });
-
-            document.getElementById('formAluno').reset();
-            carregarDashboard();
-        }
-
-        async function realizarMatricula(event) {
-            event.preventDefault();
-            const id_aluno = document.getElementById('mat_id_aluno').value;
-            const id_turma = document.getElementById('mat_id_turma').value;
-            const id_instrutor = document.getElementById('mat_id_instrutor').value;
-
-            const response = await fetch(`${API_URL}/api/matriculas`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id_aluno, id_turma, id_instrutor })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                // Exibe o erro retornado pelo seu TRIGGER de banco de dados!
-                alert(`Erro do Banco de Dados:\n${data.error}`);
-            } else {
-                alert('Matrícula realizada com sucesso!');
-                document.getElementById('formMatricula').reset();
-                carregarDashboard(); // Recarrega a View na tela
-            }
-        }
-
-        // Inicializa o app
-        carregarDashboard();
     </script>
 </body>
 </html>

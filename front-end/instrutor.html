@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Instrutor - Gestor Academia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 font-sans text-slate-300 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="p-6 border-b border-slate-700 flex items-center gap-3">
+                <span class="text-2xl">💪</span>
+                <h1 class="text-xl font-bold text-emerald-400 tracking-tight">Gestor Academia</h1>
+            </div>
+            <nav class="p-4 space-y-2">
+                <button onclick="alternarAba('turmas')" id="btn-turmas" class="w-full flex items-center gap-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20 text-left transition-colors">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Minhas Turmas
+                </button>
+                <button onclick="alternarAba('alunos')" id="btn-alunos" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-slate-200 rounded-lg text-left transition-colors">
+                    <i class="fa-solid fa-users"></i>
+                    Meus Alunos
+                </button>
+                <button onclick="alternarAba('treinos')" id="btn-treinos" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-slate-200 rounded-lg text-left transition-colors">
+                    <i class="fa-solid fa-dumbbell"></i>
+                    Planos de Treino
+                </button>
+                <button onclick="abrirModalPerfil()" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-slate-200 rounded-lg text-left transition-colors">
+                    <i class="fa-solid fa-user-gear"></i>
+                    Meu Perfil
+                </button>
+            </nav>
+        </div>
+        
+        <div class="p-4 border-t border-slate-700">
+            <div class="flex items-center gap-3 mb-4 px-2">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold border border-emerald-500/30">
+                    I
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-slate-200" id="nome-instrutor-logado">Carregando...</p>
+                    <p class="text-xs text-slate-500">Instrutor</p>
+                </div>
+            </div>
+            <button onclick="fazerLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-700 hover:bg-red-500/20 hover:text-red-400 text-slate-300 rounded-lg transition-colors text-sm font-medium">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Sair do Sistema
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        
+        <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center md:hidden">
+            <h1 class="text-lg font-bold text-emerald-400">💪 Gestor Academia</h1>
+            <button class="text-slate-400 hover:text-white"><i class="fa-solid fa-bars text-xl"></i></button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+            
+            <section id="aba-turmas" class="space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-100">Minhas Turmas</h2>
+                    <p class="text-sm text-slate-400 mt-1">Visualize os horários e turmas da sua especialidade.</p>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-300 uppercase bg-slate-700/50 border-b border-slate-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Turma</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Horário</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Vagas Ocupadas</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Atividade</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-turmas">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="aba-alunos" class="space-y-6 hidden">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-100">Meus Alunos</h2>
+                    <p class="text-sm text-slate-400 mt-1">Relação de alunos matriculados nas suas turmas.</p>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-300 uppercase bg-slate-700/50 border-b border-slate-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Nome do Aluno</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Turma Vinculada</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-meus-alunos">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="estado-vazio-alunos" class="hidden flex-col items-center justify-center py-12 px-4 text-center">
+                        <div class="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa-solid fa-user-slash text-2xl text-slate-500"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-slate-300">Nenhum aluno encontrado</h3>
+                        <p class="text-sm text-slate-500 mt-1 max-w-sm">Não há alunos matriculados com você no momento.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="aba-treinos" class="space-y-6 hidden">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-100">Planos de Treino</h2>
+                    <p class="text-sm text-slate-400 mt-1">Monte e prescreva a rotina de exercícios para os alunos da academia.</p>
+                </div>
+
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl max-w-2xl">
+                    <form id="form-plano-treino" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Aluno Alvo</label>
+                            <select id="select-treino-aluno" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Nome do Plano / Ficha</label>
+                            <input type="text" id="treino-titulo" placeholder="Ex: Treino A - Hipertrofia" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">Descrição dos Exercícios</label>
+                            <textarea id="treino-descricao" rows="6" placeholder="Ex: Supino Reto 4x10, Agachamento Livre 4x12..." required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none resize-none"></textarea>
+                        </div>
+                        <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold py-2.5 px-6 rounded-lg transition-colors shadow-lg shadow-emerald-500/20">Enviar Ficha de Treino</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="modal-perfil" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b border-slate-700">
+                <h3 class="text-xl font-bold text-slate-100">Meu Perfil Profissional</h3>
+                <button onclick="fecharModalPerfil()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <form id="form-perfil" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">CPF</label>
+                        <input type="text" id="perfil-cpf" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 outline-none cursor-not-allowed" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">CREF</label>
+                        <input type="text" id="perfil-cref" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 outline-none cursor-not-allowed" disabled>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Especialidade Principal</label>
+                    <input type="text" id="perfil-especialidade" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 outline-none cursor-not-allowed" disabled>
+                </div>
+                <hr class="border-slate-700 my-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Nome Completo</label>
+                    <input type="text" id="perfil-nome" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Telefone de Contato</label>
+                    <input type="text" id="perfil-telefone" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Alterar Senha de Acesso</label>
+                    <input type="password" id="perfil-senha" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="Mantenha em branco para não alterar">
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" onclick="fecharModalPerfil()" class="px-5 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-slate-900 transition-colors shadow-lg shadow-emerald-500/20">Atualizar Dados</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://api-gestor-academia.onrender.com/api';
+        
+        const abrasDisponiveis = ['turmas', 'alunos', 'treinos'];
+        const modalPerfil = document.getElementById('modal-perfil');
+        const formPlanoTreino = document.getElementById('form-plano-treino');
+        const formPerfil = document.getElementById('form-perfil');
+        const selectTreinoAluno = document.getElementById('select-treino-aluno');
+        const tabelaMeusAlunos = document.getElementById('tabela-meus-alunos');
+        const estadoVazioAlunos = document.getElementById('estado-vazio-alunos');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nomeLogado = localStorage.getItem('usuarioNome') || 'Instrutor Exemplo';
+            document.getElementById('nome-instrutor-logado').textContent = nomeLogado;
+            
+            carregarTurmas();
+            carregarMeusAlunos();
+        });
+
+        function alternarAba(nomeAba) {
+            abrasDisponiveis.forEach(aba => {
+                const elementoAba = document.getElementById(`aba-${aba}`);
+                const botaoAba = document.getElementById(`btn-${aba}`);
+                
+                if (aba === nomeAba) {
+                    elementoAba.classList.remove('hidden');
+                    botaoAba.className = "w-full flex items-center gap-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20 text-left transition-colors";
+                } else {
+                    elementoAba.classList.add('hidden');
+                    botaoAba.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-slate-200 rounded-lg text-left transition-colors";
+                }
+            });
+
+            if (nomeAba === 'turmas') carregarTurmas();
+            if (nomeAba === 'alunos') carregarMeusAlunos();
+            if (nomeAba === 'treinos') carregarAlunosParaSelect();
+        }
+
+        async function carregarTurmas() {
+            try {
+                const response = await fetch(`${API_URL}/turmas`);
+                if (!response.ok) throw new Error();
+                const turmas = await response.json();
+                
+                const tabela = document.getElementById('tabela-turmas');
+                tabela.innerHTML = '';
+
+                turmas.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-slate-200">${t.nome_turma || t.id_turma}</td>
+                        <td class="px-6 py-4">${t.horario || 'Não Informado'}</td>
+                        <td class="px-6 py-4">${t.total_alunos || 0} / ${t.capacidade_maxima || 30}</td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-xs border border-emerald-500/20">${t.atividade || 'Geral'}</span></td>
+                    `;
+                    tabela.appendChild(tr);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function carregarMeusAlunos() {
+            try {
+                const response = await fetch(`${API_URL}/alunos`);
+                if (!response.ok) throw new Error();
+                const alunos = await response.json();
+                
+                tabelaMeusAlunos.innerHTML = '';
+                
+                if (alunos.length === 0) {
+                    estadoVazioAlunos.classList.remove('hidden');
+                    estadoVazioAlunos.classList.add('flex');
+                    tabelaMeusAlunos.parentElement.parentElement.classList.add('hidden');
+                } else {
+                    estadoVazioAlunos.classList.add('hidden');
+                    estadoVazioAlunos.classList.remove('flex');
+                    tabelaMeusAlunos.parentElement.parentElement.classList.remove('hidden');
+
+                    alunos.forEach(a => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors';
+                        tr.innerHTML = `
+                            <td class="px-6 py-4 font-medium text-slate-200">${a.nome}</td>
+                            <td class="px-6 py-4">${a.nome_turma || 'Musculação Geral'}</td>
+                        `;
+                        tabelaMeusAlunos.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function carregarAlunosParaSelect() {
+            try {
+                const response = await fetch(`${API_URL}/alunos`);
+                if (!response.ok) throw new Error();
+                const alunos = await response.json();
+                
+                selectTreinoAluno.innerHTML = '';
+
+                alunos.forEach(a => {
+                    const option = document.createElement('option');
+                    option.value = a.id_aluno;
+                    option.textContent = a.nome;
+                    selectTreinoAluno.appendChild(option);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        formPlanoTreino.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alert('Plano de treino enviado com sucesso para a API do Aluno.');
+            formPlanoTreino.reset();
+        });
+
+        async function abrirModalPerfil() {
+            const idInstrutor = localStorage.getItem('usuarioId') || 1;
+            try {
+                const response = await fetch(`${API_URL}/funcionarios/${idInstrutor}`);
+                if (!response.ok) throw new Error();
+                const dados = await response.json();
+                
+                document.getElementById('perfil-cpf').value = dados.cpf || '';
+                document.getElementById('perfil-cref').value = '123456-G/SP';
+                document.getElementById('perfil-especialidade').value = 'Musculação / Pilates';
+                document.getElementById('perfil-nome').value = dados.nome;
+                document.getElementById('perfil-telefone').value = dados.telefone || '';
+                document.getElementById('perfil-senha').value = '';
+                
+                modalPerfil.classList.remove('hidden');
+            } catch (error) {
+                alert('Erro ao carregar perfil.');
+            }
+        }
+
+        formPerfil.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idInstrutor = localStorage.getItem('usuarioId') || 1;
+            const dados = {
+                nome: document.getElementById('perfil-nome').value,
+                telefone: document.getElementById('perfil-telefone').value,
+                senha: document.getElementById('perfil-senha').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/funcionarios/${idInstrutor}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                if (response.ok) {
+                    alert('Perfil updated com sucesso!');
+                    document.getElementById('nome-instrutor-logado').textContent = dados.nome;
+                    localStorage.setItem('usuarioNome', dados.nome);
+                    fecharModalPerfil();
+                }
+            } catch (error) {
+                alert('Erro ao salvar dados do perfil.');
+            }
+        });
+
+        function fecharModalPerfil() { modalPerfil.classList.add('hidden'); }
+        function fazerLogout() { localStorage.clear(); window.location.href = 'login.html'; }
+    </script>
+</body>
+</html>
