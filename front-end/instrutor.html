@@ -234,7 +234,6 @@
                   <input
                     type="text"
                     id="aluno-telefone"
-                    required
                     class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none"
                   />
                 </div>
@@ -457,281 +456,234 @@
     </div>
 
     <script>
-      const API_URL = "https://api-gestor-academia.onrender.com/api";
+     const API_URL = "https://api-gestor-academia.onrender.com/api";
 
-      const abrasDisponiveis = ["turmas", "alunos", "treinos", "meus-alunos"];
-      const modalTurma = document.getElementById("modal-turma");
-      const modalPerfil = document.getElementById("modal-perfil");
-      const formCadastrarAluno = document.getElementById(
-        "form-cadastrar-aluno",
-      );
-      const formMatricularAluno = document.getElementById(
-        "form-matricular-aluno",
-      );
-      const formPlanoTreino = document.getElementById("form-plano-treino");
-      const formPerfil = document.getElementById("form-perfil");
-      const selectMatriculaAluno = document.getElementById(
-        "select-matricula-aluno",
-      );
-      const selectMatriculaTurma = document.getElementById(
-        "select-matricula-turma",
-      );
-      const selectTreinoAluno = document.getElementById("select-treino-aluno");
+const abrasDisponiveis = ["turmas", "alunos", "treinos", "meus-alunos"];
+const modalPerfil = document.getElementById("modal-perfil");
+const formCadastrarAluno = document.getElementById("form-cadastrar-aluno");
+const formMatricularAluno = document.getElementById("form-matricular-aluno");
+const formPlanoTreino = document.getElementById("form-plano-treino");
+const formPerfil = document.getElementById("form-perfil");
+const selectMatriculaAluno = document.getElementById("select-matricula-aluno");
+const selectMatriculaTurma = document.getElementById("select-matricula-turma");
+const selectTreinoAluno = document.getElementById("select-treino-aluno");
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const nomeLogado =
-          localStorage.getItem("usuarioNome") || "Instrutor Exemplo";
-        document.getElementById("nome-instrutor-logado").textContent =
-          nomeLogado;
+document.addEventListener("DOMContentLoaded", () => {
+  const nomeLogado = localStorage.getItem("usuarioNome") || "Instrutor Exemplo";
+  document.getElementById("nome-instrutor-logado").textContent = nomeLogado;
+  carregarTurmas();
+  carregarAlunosParaSelects();
+});
 
-        carregarTurmas();
-        carregarAlunosParaSelects();
+async function carregarMeusAlunos() {
+  try {
+    const response = await fetch(`${API_URL}/alunos`);
+    if (!response.ok) throw new Error();
+    const alunos = await response.json();
+    const tabela = document.getElementById("tabela-meus-alunos");
+    const vazio = document.getElementById("estado-vazio-alunos");
+    tabela.innerHTML = "";
+    if (alunos.length === 0) {
+      vazio.classList.remove("hidden");
+      vazio.classList.add("flex");
+      tabela.parentElement.parentElement.classList.add("hidden");
+    } else {
+      vazio.classList.add("hidden");
+      vazio.classList.remove("flex");
+      tabela.parentElement.parentElement.classList.remove("hidden");
+      alunos.forEach((a) => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors";
+        tr.innerHTML = `
+            <td class="px-6 py-4 font-medium text-slate-200">${a.nome}</td>
+            <td class="px-6 py-4">${a.nome_turma || "Musculação Geral"}</td>
+        `;
+        tabela.appendChild(tr);
       });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-      async function carregarMeusAlunos() {
-        try {
-          const response = await fetch(`${API_URL}/alunos`);
-          if (!response.ok) throw new Error();
-          const alunos = await response.json();
+function alternarAba(nomeAba) {
+  abrasDisponiveis.forEach((aba) => {
+    const elementoAba = document.getElementById(`aba-${aba}`);
+    const botaoAba = document.getElementById(`btn-${aba}`);
+    if (aba === nomeAba) {
+      elementoAba.classList.remove("hidden");
+      botaoAba.className = "w-full flex items-center gap-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20 text-left transition-colors";
+    } else {
+      elementoAba.classList.add("hidden");
+      botaoAba.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-slate-200 rounded-lg text-left transition-colors";
+    }
+  });
+  if (nomeAba === "turmas") carregarTurmas();
+  if (nomeAba === "alunos") {
+    carregarAlunosParaSelects();
+    carregarTurmas();
+  }
+  if (nomeAba === "treinos") carregarAlunosParaSelects();
+  if (nomeAba === "meus-alunos") carregarMeusAlunos();
+}
 
-          const tabela = document.getElementById("tabela-meus-alunos");
-          const vazio = document.getElementById("estado-vazio-alunos");
-          tabela.innerHTML = "";
+async function carregarTurmas() {
+  try {
+    const response = await fetch(`${API_URL}/turmas`);
+    if (!response.ok) throw new Error();
+    const turmas = await response.json();
+    const tabela = document.getElementById("tabela-turmas");
+    tabela.innerHTML = "";
+    selectMatriculaTurma.innerHTML = "";
+    turmas.forEach((t) => {
+      const tr = document.createElement("tr");
+      tr.className = "border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors";
+      tr.innerHTML = `
+          <td class="px-6 py-4 font-medium text-slate-200">${t.nome_turma || t.id_turma}</td>
+          <td class="px-6 py-4">${t.horario || "Não Informado"}</td>
+          <td class="px-6 py-4">${t.total_alunos || 0} / ${t.capacidade_maxima || 30}</td>
+          <td class="px-6 py-4"><span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-xs border border-emerald-500/20">${t.atividade || "Geral"}</span></td>
+      `;
+      tabela.appendChild(tr);
+      const option = document.createElement("option");
+      option.value = t.id_turma;
+      option.textContent = `${t.nome_turma || "Turma " + t.id_turma} (${t.horario || ""})`;
+      selectMatriculaTurma.appendChild(option);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-          if (alunos.length === 0) {
-            vazio.classList.remove("hidden");
-            vazio.classList.add("flex");
-            tabela.parentElement.parentElement.classList.add("hidden");
-          } else {
-            vazio.classList.add("hidden");
-            vazio.classList.remove("flex");
-            tabela.parentElement.parentElement.classList.remove("hidden");
+async function carregarAlunosParaSelects() {
+  try {
+    const response = await fetch(`${API_URL}/alunos`);
+    if (!response.ok) throw new Error();
+    const alunos = await response.json();
+    selectMatriculaAluno.innerHTML = "";
+    selectTreinoAluno.innerHTML = "";
+    alunos.forEach((a) => {
+      const opt1 = document.createElement("option");
+      opt1.value = a.id_aluno;
+      opt1.textContent = a.nome;
+      selectMatriculaAluno.appendChild(opt1);
+      const opt2 = document.createElement("option");
+      opt2.value = a.id_aluno;
+      opt2.textContent = a.nome;
+      selectTreinoAluno.appendChild(opt2);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-            alunos.forEach((a) => {
-              const tr = document.createElement("tr");
-              tr.className =
-                "border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors";
-              tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-slate-200">${a.nome}</td>
-                    <td class="px-6 py-4">${a.nome_turma || "Musculação Geral"}</td>
-                `;
-              tabela.appendChild(tr);
-            });
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }
+formCadastrarAluno.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const dados = {
+    nome: document.getElementById("aluno-nome").value,
+    data_nascimento: document.getElementById("aluno-nascimento").value,
+    telefone_fixo: document.getElementById("aluno-telefone").value,
+  };
+  try {
+    const response = await fetch(`${API_URL}/alunos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados),
+    });
+    if (response.ok) {
+      alert("Aluno cadastrado com sucesso!");
+      formCadastrarAluno.reset();
+      carregarAlunosParaSelects();
+    } else {
+      alert("Erro ao cadastrar aluno.");
+    }
+  } catch (error) {
+    alert("Erro ao cadastrar aluno.");
+  }
+});
 
-      function alternarAba(nomeAba) {
-        abrasDisponiveis.forEach((aba) => {
-          const elementoAba = document.getElementById(`aba-${aba}`);
-          const botaoAba = document.getElementById(`btn-${aba}`);
+formMatricularAluno.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const idInstrutor = localStorage.getItem("usuarioId") || 1;
+  const dados = {
+    id_aluno: parseInt(selectMatriculaAluno.value),
+    id_turma: parseInt(selectMatriculaTurma.value),
+    id_instrutor: parseInt(idInstrutor),
+  };
+  try {
+    const response = await fetch(`${API_URL}/matriculas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados),
+    });
+    const result = await response.json();
+    if (response.ok) {
+      alert("Matrícula confirmada com sucesso!");
+      formMatricularAluno.reset();
+    } else {
+      alert(`Não foi possível matricular: ${result.error}`);
+    }
+  } catch (error) {
+    alert("Erro ao realizar matrícula.");
+  }
+});
 
-          if (aba === nomeAba) {
-            elementoAba.classList.remove("hidden");
-            botaoAba.className =
-              "w-full flex items-center gap-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20 text-left transition-colors";
-          } else {
-            elementoAba.classList.add("hidden");
-            botaoAba.className =
-              "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-slate-200 rounded-lg text-left transition-colors";
-          }
-        });
+formPlanoTreino.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  alert("Plano de treino enviado com sucesso para a API do Aluno.");
+  formPlanoTreino.reset();
+});
 
-        if (nomeAba === "turmas") carregarTurmas();
-        if (nomeAba === "treinos") carregarAlunosParaSelect();
-        if (nomeAba === "meus-alunos") carregarMeusAlunos();
-      }
+async function abrirModalPerfil() {
+  const idInstrutor = localStorage.getItem("usuarioId") || 1;
+  try {
+    const response = await fetch(`${API_URL}/funcionarios/${idInstrutor}`);
+    if (!response.ok) throw new Error();
+    const dados = await response.json();
+    document.getElementById("perfil-cpf").value = dados.cpf || "";
+    document.getElementById("perfil-cref").value = "123456-G/SP";
+    document.getElementById("perfil-especialidade").value = "Musculação / Pilates";
+    document.getElementById("perfil-nome").value = dados.nome;
+    document.getElementById("perfil-telefone").value = dados.telefone || "";
+    document.getElementById("perfil-senha").value = "";
+    modalPerfil.classList.remove("hidden");
+  } catch (error) {
+    alert("Erro ao carregar perfil.");
+  }
+}
 
-      async function carregarTurmas() {
-        try {
-          const response = await fetch(`${API_URL}/turmas`);
-          if (!response.ok) throw new Error();
-          const turmas = await response.json();
+formPerfil.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const idInstrutor = localStorage.getItem("usuarioId") || 1;
+  const dados = {
+    nome: document.getElementById("perfil-nome").value,
+    telefone: document.getElementById("perfil-telefone").value,
+    senha: document.getElementById("perfil-senha").value,
+  };
+  try {
+    const response = await fetch(`${API_URL}/funcionarios/${idInstrutor}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados),
+    });
+    if (response.ok) {
+      alert("Perfil atualizado com sucesso!");
+      document.getElementById("nome-instrutor-logado").textContent = dados.nome;
+      localStorage.setItem("usuarioNome", dados.nome);
+      fecharModalPerfil();
+    }
+  } catch (error) {
+    alert("Erro ao salvar dados do perfil.");
+  }
+});
 
-          const tabela = document.getElementById("tabela-turmas");
-          tabela.innerHTML = "";
-
-          selectMatriculaTurma.innerHTML = "";
-
-          turmas.forEach((t) => {
-            const tr = document.createElement("tr");
-            tr.className =
-              "border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors";
-            tr.innerHTML = `
-                        <td class="px-6 py-4 font-medium text-slate-200">${t.nome_turma || t.id_turma}</td>
-                        <td class="px-6 py-4">${t.horario || "Não Informado"}</td>
-                        <td class="px-6 py-4">${t.total_alunos || 0} / ${t.capacidade_maxima || 30}</td>
-                        <td class="px-6 py-4"><span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-xs border border-emerald-500/20">${t.atividade || "Geral"}</span></td>
-                    `;
-            tabela.appendChild(tr);
-
-            const option = document.createElement("option");
-            option.value = t.id_turma;
-            option.textContent = `${t.nome_turma || "Turma " + t.id_turma} (${t.horario || ""})`;
-            selectMatriculaTurma.appendChild(option);
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      }
-
-      async function carregarAlunosParaSelects() {
-        try {
-          const response = await fetch(`${API_URL}/alunos`);
-          if (!response.ok) throw new Error();
-          const alunos = await response.json();
-
-          selectMatriculaAluno.innerHTML = "";
-          selectTreinoAluno.innerHTML = "";
-
-          alunos.forEach((a) => {
-            const opt1 = document.createElement("option");
-            opt1.value = a.id_aluno;
-            opt1.textContent = a.nome;
-            selectMatriculaAluno.appendChild(opt1);
-
-            const opt2 = document.createElement("option");
-            opt2.value = a.id_aluno;
-            opt2.textContent = a.nome;
-            selectTreinoAluno.appendChild(opt2);
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      }
-
-      formCadastrarAluno.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const dados = {
-          nome: document.getElementById("aluno-nome").value,
-          data_nascimento: document.getElementById("aluno-nascimento").value,
-          telefone_fixo: document.getElementById("aluno-telefone").value,
-        };
-
-        try {
-          const response = await fetch(`${API_URL}/alunos`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dados),
-          });
-
-          if (response.ok) {
-            alert("Aluno cadastrado com sucesso!");
-            formCadastrarAluno.reset();
-            carregarAlunosParaSelects();
-          }
-        } catch (error) {
-          alert("Erro ao cadastrar aluno.");
-        }
-      });
-
-      formMatricularAluno.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const idInstrutor = localStorage.getItem("usuarioId") || 1;
-        const dados = {
-          id_aluno: parseInt(selectMatriculaAluno.value),
-          id_turma: parseInt(selectMatriculaTurma.value),
-          id_instrutor: parseInt(idInstrutor),
-        };
-
-        try {
-          const response = await fetch(`${API_URL}/matriculas`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dados),
-          });
-
-          const result = await response.json();
-
-          if (response.ok) {
-            alert("Matrícula confirmada com sucesso!");
-            formMatricularAluno.reset();
-          } else {
-            alert(`Não foi possível matricular: ${result.error}`);
-          }
-        } catch (error) {
-          alert("Erro ao realizar matrícula.");
-        }
-      });
-
-      formCriarTurma.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        alert(
-          "A rota POST /api/turmas será acionada com os dados profissionais.",
-        );
-        fecharModalTurma();
-      });
-
-      formPlanoTreino.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        alert("Plano de treino enviado com sucesso para a API do Aluno.");
-        formPlanoTreino.reset();
-      });
-
-      async function abrirModalPerfil() {
-        const idInstrutor = localStorage.getItem("usuarioId") || 1;
-        try {
-          const response = await fetch(
-            `${API_URL}/funcionarios/${idInstrutor}`,
-          );
-          if (!response.ok) throw new Error();
-          const dados = await response.json();
-
-          document.getElementById("perfil-cpf").value = dados.cpf || "";
-          document.getElementById("perfil-cref").value = "123456-G/SP";
-          document.getElementById("perfil-especialidade").value =
-            "Musculação / Pilates";
-          document.getElementById("perfil-nome").value = dados.nome;
-          document.getElementById("perfil-telefone").value =
-            dados.telefone || "";
-          document.getElementById("perfil-senha").value = "";
-
-          modalPerfil.classList.remove("hidden");
-        } catch (error) {
-          alert("Erro ao carregar perfil.");
-        }
-      }
-
-      formPerfil.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const idInstrutor = localStorage.getItem("usuarioId") || 1;
-        const dados = {
-          nome: document.getElementById("perfil-nome").value,
-          telefone: document.getElementById("perfil-telefone").value,
-          senha: document.getElementById("perfil-senha").value,
-        };
-
-        try {
-          const response = await fetch(
-            `${API_URL}/funcionarios/${idInstrutor}`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(dados),
-            },
-          );
-
-          if (response.ok) {
-            alert("Perfil atualizado com sucesso!");
-            document.getElementById("nome-instrutor-logado").textContent =
-              dados.nome;
-            localStorage.setItem("usuarioNome", dados.nome);
-            fecharModalPerfil();
-          }
-        } catch (error) {
-          alert("Erro ao salvar dados do perfil.");
-        }
-      });
-
-      function fecharModalPerfil() {
-        modalPerfil.classList.add("hidden");
-      }
-      function fazerLogout() {
-        localStorage.clear();
-        window.location.href = "index.html";
-      }
+function fecharModalPerfil() {
+  modalPerfil.classList.add("hidden");
+}
+function fazerLogout() {
+  localStorage.clear();
+  window.location.href = "index.html";
+}
     </script>
   </body>
 </html>
