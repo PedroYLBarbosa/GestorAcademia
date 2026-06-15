@@ -101,16 +101,19 @@ app.get('/api/alunos/:nome', async (req, res) => {
 app.post('/api/alunos', async (req, res) => {
   const { nome, data_nascimento, telefone_fixo } = req.body;
   try {
+    const cpfAleatorio = Math.floor(10000000000 + Math.random() * 90000000000).toString();
+    const senhaPadrao = "1234";
+
     const result = await pool.query(
-      'INSERT INTO ALUNO (nome, data_nascimento, telefone_fixo) VALUES ($1, $2, $3) RETURNING *',
-      [nome, data_nascimento, telefone_fixo]
+      'INSERT INTO ALUNO (nome, data_nascimento, telefone_fixo, cpf, senha) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [nome, data_nascimento, telefone_fixo, cpfAleatorio, senhaPadrao]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    console.error("Erro ao cadastrar aluno:", err);
     res.status(500).json({ error: err.message });
   }
 });
-
 //Realizar Matrícula em uma Turma (Interage com o Trigger de Lotação)
 app.post('/api/matriculas', async (req, res) => {
   const { id_aluno, id_turma, id_instrutor } = req.body;
