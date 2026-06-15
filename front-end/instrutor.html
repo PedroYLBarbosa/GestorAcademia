@@ -539,9 +539,9 @@ async function carregarTurmas() {
       const tr = document.createElement("tr");
       tr.className = "border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors";
       tr.innerHTML = `
-          <td class="px-6 py-4 font-medium text-slate-200">${t.nome_turma || t.id_turma}</td>
+          <td class="px-6 py-4 font-medium text-slate-200">${t.id_turma}</td>
           <td class="px-6 py-4">${t.horario || "Não Informado"}</td>
-          <td class="px-6 py-4">${t.total_alunos || 0} / ${t.capacidade_maxima || 30}</td>
+          <td class="px-6 py-4">${t.vagas_restantes || 0} / ${t.vagas_maximas || 30}</td>
           <td class="px-6 py-4"><span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-xs border border-emerald-500/20">${t.atividade || "Geral"}</span></td>
       `;
       tabela.appendChild(tr);
