@@ -540,10 +540,9 @@
         });
 
         if (nomeAba === "turmas") carregarTurmas();
-        if (nomeAba === "alunos" || nomeAba === "treinos")
-          carregarAlunosParaSelects();
+        if (nomeAba === "treinos") carregarAlunosParaSelect();
+        if (nomeAba === "meus-alunos") carregarMeusAlunos();
       }
-      if (nomeAba === 'meus-alunos') carregarMeusAlunos();
 
       async function carregarTurmas() {
         try {
