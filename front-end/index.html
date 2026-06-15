@@ -80,14 +80,13 @@
             </section>
         </div>
     </div>
-
     <script>
-        const API_URL = 'http://localhost:3000/api'; 
+        const API_URL = 'https://api-gestor-academia.onrender.com'; 
 
         async function carregarDashboard() {
             try {
                 // 1. Carregar Turmas (View)
-                const resTurmas = await fetch(`${API_URL}/turmas`);
+                const resTurmas = await fetch(`${API_URL}/api/turmas`);
                 const turmas = await resTurmas.json();
                 const tabela = document.getElementById('tabelaTurmas');
                 tabela.innerHTML = '';
@@ -109,7 +108,7 @@
                 });
 
                 // 2. Carregar Alunos
-                const resAlunos = await fetch(`${API_URL}/alunos`);
+                const resAlunos = await fetch(`${API_URL}/api/alunos`);
                 const alunos = await resAlunos.json();
                 const lista = document.getElementById('listaAlunos');
                 lista.innerHTML = '';
@@ -137,7 +136,7 @@
             const data_nascimento = document.getElementById('data_nasc').value;
             const telefone_fixo = document.getElementById('telefone').value;
 
-            await fetch(`${API_URL}/alunos`, {
+            await fetch(`${API_URL}/api/alunos`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nome, data_nascimento, telefone_fixo })
@@ -153,7 +152,7 @@
             const id_turma = document.getElementById('mat_id_turma').value;
             const id_instrutor = document.getElementById('mat_id_instrutor').value;
 
-            const response = await fetch(`${API_URL}/matriculas`, {
+            const response = await fetch(`${API_URL}/api/matriculas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id_aluno, id_turma, id_instrutor })

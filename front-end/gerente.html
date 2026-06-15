@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Gerente - Gestor Academia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 font-sans text-slate-300 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="p-6 border-b border-slate-700 flex items-center gap-3">
+                <span class="text-2xl">💪</span>
+                <h1 class="text-xl font-bold text-emerald-400 tracking-tight">Gestor Academia</h1>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 rounded-lg transition-colors border border-emerald-500/20">
+                    <i class="fa-solid fa-users"></i>
+                    Meus Instrutores
+                </a>
+                <a href="#" onclick="abrirModalPerfil()" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-slate-200 rounded-lg transition-colors">
+                    <i class="fa-solid fa-user-gear"></i>
+                    Meu Perfil
+                </a>
+            </nav>
+        </div>
+        
+        <div class="p-4 border-t border-slate-700">
+            <div class="flex items-center gap-3 mb-4 px-2">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold border border-emerald-500/30">
+                    G
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-slate-200" id="nome-gerente-logado">Carregando...</p>
+                    <p class="text-xs text-slate-500">Gerente</p>
+                </div>
+            </div>
+            <button onclick="fazerLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-700 hover:bg-red-500/20 hover:text-red-400 text-slate-300 rounded-lg transition-colors text-sm font-medium">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Sair do Sistema
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        
+        <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center md:hidden">
+            <h1 class="text-lg font-bold text-emerald-400">💪 Gestor Academia</h1>
+            <button class="text-slate-400 hover:text-white"><i class="fa-solid fa-bars text-xl"></i></button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-100">Gerenciamento de Instrutores</h2>
+                    <p class="text-sm text-slate-400 mt-1">Gerencie os dados profissionais dos instrutores sob sua supervisão.</p>
+                </div>
+                <button onclick="abrirModalInstrutor()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold py-2.5 px-5 rounded-lg transition-colors shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    Vincular Instrutor
+                </button>
+            </div>
+
+            <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-400">
+                        <thead class="text-xs text-slate-300 uppercase bg-slate-700/50 border-b border-slate-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-semibold">Nome</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">CREF</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Especialidade</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Horário</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-instrutores">
+                            <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
+                                <td class="px-6 py-4">
+                                    <p class="font-medium text-slate-200">Carlos Silva</p>
+                                </td>
+                                <td class="px-6 py-4">123456-G/CE</td>
+                                <td class="px-6 py-4"><span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-md text-xs border border-blue-500/20">Musculação</span></td>
+                                <td class="px-6 py-4">Manhã (06h - 12h)</td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-2">
+                                        <button class="p-2 text-slate-400 hover:text-emerald-400 transition-colors" title="Editar Profissional" onclick="editarInstrutor(1)">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button class="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Remover Vínculo" onclick="excluirInstrutor(1)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="estado-vazio" class="hidden flex-col items-center justify-center py-12 px-4 text-center">
+                    <div class="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-user-slash text-2xl text-slate-500"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-slate-300">Nenhum instrutor encontrado</h3>
+                    <p class="text-sm text-slate-500 mt-1 max-w-sm">Você ainda não gerencia instrutores.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-instrutor" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            
+            <div class="flex justify-between items-center p-6 border-b border-slate-700">
+                <h3 class="text-xl font-bold text-slate-100" id="titulo-modal">Dados Profissionais do Instrutor</h3>
+                <button onclick="fecharModalInstrutor()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="form-instrutor" class="p-6">
+                <input type="hidden" id="id_funcionario_instrutor" value="">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Nome do Instrutor</label>
+                        <input type="text" id="inst-nome" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 outline-none" disabled>
+                        <p class="text-[10px] text-slate-500 mt-1">O nome não pode ser alterado por aqui.</p>
+                    </div>
+
+                    <div class="col-span-1 md:col-span-2 mt-2"><h4 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">Dados Profissionais</h4></div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">CREF</label>
+                        <input type="text" id="inst-cref" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Especialidade</label>
+                        <select id="inst-especialidade" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                            <option value="Musculação">Musculação</option>
+                            <option value="Pilates">Pilates</option>
+                            <option value="Crossfit">Crossfit</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Horário Disponível</label>
+                        <input type="text" id="inst-horario" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" onclick="fecharModalInstrutor()" class="px-5 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-slate-900 transition-colors shadow-lg shadow-emerald-500/20">Salvar Dados</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<div id="modal-perfil" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+            
+            <div class="flex justify-between items-center p-6 border-b border-slate-700">
+                <h3 class="text-xl font-bold text-slate-100">Meu Perfil</h3>
+                <button onclick="fecharModalPerfil()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="form-perfil" class="p-6">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">CPF</label>
+                            <input type="text" id="perfil-cpf" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 outline-none cursor-not-allowed" disabled>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Admissão</label>
+                            <input type="text" id="perfil-admissao" class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-400 outline-none cursor-not-allowed" disabled>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-700 my-4">
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Nome Completo</label>
+                        <input type="text" id="perfil-nome" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Telefone</label>
+                        <input type="text" id="perfil-telefone" required class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Nova Senha</label>
+                        <input type="password" id="perfil-senha" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:ring-2 focus:ring-emerald-400 outline-none" placeholder="Deixe em branco para não alterar">
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" onclick="fecharModalPerfil()" class="px-5 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-slate-900 transition-colors shadow-lg shadow-emerald-500/20">Atualizar Perfil</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+ <script>
+        const API_URL = 'http://localhost:3000/api';
+        
+        // Modal e Formulário
+        const modalInst = document.getElementById('modal-instrutor');
+        const formInst = document.getElementById('form-instrutor');
+        const tituloModal = document.getElementById('titulo-modal');
+        const tabelaInstrutores = document.getElementById('tabela-instrutores');
+        const estadoVazio = document.getElementById('estado-vazio');
+
+        // ==========================================
+        // 1. INICIALIZAÇÃO DA PÁGINA
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const tipo = localStorage.getItem('usuarioTipo');
+            // Descomente em produção para proteger a rota
+            // if (tipo !== 'Gerente') { window.location.href = 'login.html'; }
+
+            const nomeLogado = localStorage.getItem('usuarioNome') || 'Gerente Exemplo';
+            document.getElementById('nome-gerente-logado').textContent = nomeLogado;
+            
+            // Carrega a tabela assim que a página abre
+            carregarInstrutores();
+        });
+
+        // ==========================================
+        // 2. LISTAR INSTRUTORES (GET)
+        // ==========================================
+        async function carregarInstrutores() {
+            // Pega o ID do gerente logado (que foi salvo lá no login)
+            const idGerente = localStorage.getItem('usuarioId') || 1; // Fallback para ID 1 para testes
+
+            try {
+                const response = await fetch(`${API_URL}/gerentes/${idGerente}/instrutores`);
+                if (!response.ok) throw new Error('Falha ao carregar instrutores');
+                
+                const instrutores = await response.json();
+                
+                tabelaInstrutores.innerHTML = ''; // Limpa a tabela
+                
+                if (instrutores.length === 0) {
+                    estadoVazio.classList.remove('hidden');
+                    estadoVazio.classList.add('flex');
+                    tabelaInstrutores.parentElement.parentElement.classList.add('hidden'); // Esconde a tag <table>
+                } else {
+                    estadoVazio.classList.add('hidden');
+                    estadoVazio.classList.remove('flex');
+                    tabelaInstrutores.parentElement.parentElement.classList.remove('hidden');
+                    
+                    instrutores.forEach(inst => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors';
+                        tr.innerHTML = `
+                            <td class="px-6 py-4">
+                                <p class="font-medium text-slate-200">${inst.nome}</p>
+                                <p class="text-[10px] text-slate-500">ID Func: ${inst.id_funcionario}</p>
+                            </td>
+                            <td class="px-6 py-4">${inst.cref}</td>
+                            <td class="px-6 py-4"><span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-md text-xs border border-blue-500/20">${inst.especialidade}</span></td>
+                            <td class="px-6 py-4">${inst.horario_disp}</td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <button class="p-2 text-slate-400 hover:text-emerald-400 transition-colors" title="Editar Profissional" onclick="prepararEdicao(${inst.id_funcionario}, '${inst.nome}', '${inst.cref}', '${inst.especialidade}', '${inst.horario_disp}')">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Remover Vínculo" onclick="excluirInstrutor(${inst.id_funcionario})">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        tabelaInstrutores.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao comunicar com o servidor.');
+            }
+        }
+
+        // ==========================================
+        // CONTROLE DO PERFIL DO GERENTE
+        // ==========================================
+        const modalPerfil = document.getElementById('modal-perfil');
+        const formPerfil = document.getElementById('form-perfil');
+
+        async function abrirModalPerfil() {
+            const idGerente = localStorage.getItem('usuarioId') || 1;
+            
+            try {
+                // Busca os dados atuais do gerente no banco
+                const response = await fetch(`${API_URL}/funcionarios/${idGerente}`);
+                if (!response.ok) throw new Error('Erro ao buscar dados do perfil');
+                
+                const dados = await response.json();
+                
+                // Preenche o formulário
+                document.getElementById('perfil-cpf').value = dados.cpf;
+                // Formata a data (se vier do banco com formato ISO)
+                const dataFormatada = new Date(dados.data_admissao).toLocaleDateString('pt-BR');
+                document.getElementById('perfil-admissao').value = dataFormatada;
+                
+                document.getElementById('perfil-nome').value = dados.nome;
+                document.getElementById('perfil-telefone').value = dados.telefone;
+                document.getElementById('perfil-senha').value = ''; // Limpa a senha por segurança
+                
+                modalPerfil.classList.remove('hidden');
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao carregar o perfil.");
+            }
+        }
+
+        function fecharModalPerfil() {
+            modalPerfil.classList.add('hidden');
+        }
+
+        formPerfil.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idGerente = localStorage.getItem('usuarioId') || 1;
+            
+            const dadosAtualizados = {
+                nome: document.getElementById('perfil-nome').value,
+                telefone: document.getElementById('perfil-telefone').value,
+                senha: document.getElementById('perfil-senha').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/funcionarios/${idGerente}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosAtualizados)
+                });
+
+                if (response.ok) {
+                    alert('Perfil atualizado com sucesso!');
+                    // Atualiza o nome na barra lateral caso tenha mudado
+                    document.getElementById('nome-gerente-logado').textContent = dadosAtualizados.nome;
+                    localStorage.setItem('usuarioNome', dadosAtualizados.nome);
+                    fecharModalPerfil();
+                } else {
+                    alert('Erro ao atualizar o perfil.');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro fatal ao salvar o perfil.');
+            }
+        });
+
+        // ==========================================
+        // CADASTRAR OU EDITAR (POST / PUT)
+        // ==========================================
+        formInst.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const idGerente = localStorage.getItem('usuarioId') || 1;
+            const idFuncionario = document.getElementById('id_funcionario_instrutor').value;
+            
+            // Dados do formulário
+            const dados = {
+                cref: document.getElementById('inst-cref').value,
+                especialidade: document.getElementById('inst-especialidade').value,
+                horario_disp: document.getElementById('inst-horario').value,
+                id_gerente: parseInt(idGerente)
+            };
+
+            try {
+                let response;
+                
+                
+                if (idFuncionario === '') {
+                    const idNovoFunc = prompt("Digite o ID do Funcionário já cadastrado no sistema para vinculá-lo como Instrutor:");
+                    if(!idNovoFunc) return fecharModalInstrutor();
+                    
+                    dados.id_funcionario = parseInt(idNovoFunc);
+                    
+                    response = await fetch(`${API_URL}/instrutores`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dados)
+                    });
+                } 
+                else {
+                    response = await fetch(`${API_URL}/instrutores/${idFuncionario}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dados)
+                    });
+                }
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(idFuncionario === '' ? 'Instrutor vinculado com sucesso!' : 'Dados atualizados com sucesso!');
+                    fecharModalInstrutor();
+                    carregarInstrutores(); 
+                } else {
+                    alert(`Erro do Banco de Dados: ${result.error}`);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro fatal ao salvar os dados.');
+            }
+        });
+
+        // ==========================================
+        // EXCLUIR (DELETE)
+        // ==========================================
+        async function excluirInstrutor(id) {
+            if(confirm("ATENÇÃO: Tem certeza que deseja demitir e excluir este funcionário do sistema permanentemente?")) {
+                try {
+                    const response = await fetch(`${API_URL}/instrutores/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        alert('Funcionário excluído com sucesso.');
+                        carregarInstrutores(); // Atualiza a tabela
+                    } else {
+                        alert(`A operação foi bloqueada pelo banco de dados:\n${result.error}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Erro fatal ao tentar excluir.');
+                }
+            }
+        }
+
+        // ==========================================
+        // FUNÇÕES DE CONTROLE DO MODAL
+        // ==========================================
+        function abrirModalInstrutor() {
+            formInst.reset();
+            document.getElementById('id_funcionario_instrutor').value = '';
+            document.getElementById('inst-nome').value = '';
+            document.getElementById('inst-nome').placeholder = 'Será vinculado pelo ID';
+            
+            tituloModal.textContent = "Vincular Instrutor Existente";
+            modalInst.classList.remove('hidden');
+        }
+
+        function prepararEdicao(id, nome, cref, especialidade, horario) {
+            document.getElementById('id_funcionario_instrutor').value = id;
+            document.getElementById('inst-nome').value = nome;
+            document.getElementById('inst-cref').value = cref;
+            document.getElementById('inst-especialidade').value = especialidade;
+            document.getElementById('inst-horario').value = horario;
+            
+            tituloModal.textContent = "Editar Dados Profissionais";
+            modalInst.classList.remove('hidden');
+        }
+
+        function fecharModalInstrutor() {
+            modalInst.classList.add('hidden');
+        }
+
+        function fazerLogout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
