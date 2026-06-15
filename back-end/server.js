@@ -67,6 +67,8 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+
+
 app.post("/api/treinos", async (req, res) => {
   const { id_aluno, nome_programa, objetivo, observacoes_gerais } = req.body;
   const client = await pool.connect();
@@ -112,6 +114,38 @@ app.get("/api/turmas", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.get('/api/instrutores/:id_instrutor/alunos', async (req, res) => {
+  const { id_instrutor } = req.params;
+  try {
+    const query = `
+      SELECT 
+        a.id_aluno,
+        a.nome AS aluno_nome,
+        COALESCE(agn.nome_activity, 'Sem Turma') AS turma_nome,
+        COALESCE(pt.nome_programa, 'Sem Plano') AS plano_nome,
+        COALESCE(pt.objetivo, 'Não definido') AS plano_objetivo,
+        COALESCE(pt.observacoes_gerais, 'Sem exercícios cadastrados') AS plano_detalhes
+      FROM ALUNO a
+      INNER JOIN MATRICULA m ON a.id_aluno = m.id_aluno
+      LEFT JOIN TURMA t ON m.id_turma = t.id_turma
+      LEFT JOIN (
+        SELECT id_atividade_grupo, MIN(nome_atividade) AS nome_activity
+        FROM ATIVIDADE_GRUPO_NOME
+        GROUP BY id_atividade_grupo
+      ) agn ON t.id_atividade_grupo = agn.id_atividade_grupo
+      LEFT JOIN PLANO_TREINO pt ON a.id_plano_treino = pt.id_plano_treino
+      WHERE m.id_instrutor = $1
+      ORDER BY a.nome ASC
+    `;
+    const result = await pool.query(query, [id_instrutor]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Listar todos os alunos
 app.get("/api/alunos", async (req, res) => {

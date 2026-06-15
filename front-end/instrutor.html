@@ -145,7 +145,7 @@
           <div>
             <h2 class="text-2xl font-bold text-slate-100">Meus Alunos</h2>
             <p class="text-sm text-slate-400 mt-1">
-              Relação de alunos e suas respectivas turmas.
+              Relação de alunos, turmas vinculadas e planos de treino ativos.
             </p>
           </div>
 
@@ -161,7 +161,18 @@
                     <th scope="col" class="px-6 py-4 font-semibold">
                       Nome do Aluno
                     </th>
-                    <th scope="col" class="px-6 py-4 font-semibold">Turma</th>
+                    <th scope="col" class="px-6 py-4 font-semibold">
+                      Turma Vinculada
+                    </th>
+                    <th scope="col" class="px-6 py-4 font-semibold">
+                      Programa Atual
+                    </th>
+                    <th scope="col" class="px-6 py-4 font-semibold">
+                      Objetivo
+                    </th>
+                    <th scope="col" class="px-6 py-4 font-semibold">
+                      Exercícios / Observações
+                    </th>
                   </tr>
                 </thead>
                 <tbody id="tabela-meus-alunos"></tbody>
@@ -498,13 +509,18 @@
       });
 
       async function carregarMeusAlunos() {
+        const idInstrutor = localStorage.getItem("usuarioId") || 1;
         try {
-          const response = await fetch(`${API_URL}/alunos`);
+          const response = await fetch(
+            `${API_URL}/instrutores/${idInstrutor}/alunos`,
+          );
           if (!response.ok) throw new Error();
           const alunos = await response.json();
+
           const tabela = document.getElementById("tabela-meus-alunos");
           const vazio = document.getElementById("estado-vazio-alunos");
           tabela.innerHTML = "";
+
           if (alunos.length === 0) {
             vazio.classList.remove("hidden");
             vazio.classList.add("flex");
@@ -513,13 +529,17 @@
             vazio.classList.add("hidden");
             vazio.classList.remove("flex");
             tabela.parentElement.parentElement.classList.remove("hidden");
+
             alunos.forEach((a) => {
               const tr = document.createElement("tr");
               tr.className =
                 "border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors";
               tr.innerHTML = `
-            <td class="px-6 py-4 font-medium text-slate-200">${a.nome}</td>
-            <td class="px-6 py-4">${a.nome_turma || "Musculação Geral"}</td>
+            <td class="px-6 py-4 font-medium text-slate-200">${a.aluno_nome}</td>
+            <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-500/10 text-blue-400 rounded-md text-xs border border-blue-500/20">${a.turma_nome}</span></td>
+            <td class="px-6 py-4 text-emerald-400 font-semibold">${a.plano_nome}</td>
+            <td class="px-6 py-4 text-slate-300">${a.plano_objetivo}</td>
+            <td class="px-6 py-4 max-w-xs truncate text-xs text-slate-400" title="${a.plano_detalhes}">${a.plano_detalhes}</td>
         `;
               tabela.appendChild(tr);
             });
