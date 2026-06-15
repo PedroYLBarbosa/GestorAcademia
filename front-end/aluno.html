@@ -17,5 +17,13 @@
             <li>Turma 2: Musculação - Terça e Quinta às 19h</li>
             <li>Turma 3: Natação - Sábado às 10h</li>
         </ul>
+
+        <button onclick="fazerLogout()">Sair</button>
+    <script>
+        function fazerLogout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
 </html>
