@@ -532,6 +532,9 @@ async function carregarTurmas() {
     const response = await fetch(`${API_URL}/turmas`);
     if (!response.ok) throw new Error();
     const turmas = await response.json();
+
+    console.log(turmas);
+
     const tabela = document.getElementById("tabela-turmas");
     tabela.innerHTML = "";
     selectMatriculaTurma.innerHTML = "";
@@ -541,7 +544,7 @@ async function carregarTurmas() {
       tr.innerHTML = `
           <td class="px-6 py-4 font-medium text-slate-200">${t.id_turma}</td>
           <td class="px-6 py-4">${t.horario || "Não Informado"}</td>
-          <td class="px-6 py-4">${t.vagas_restantes || 0} / ${t.vagas_maximas || 30}</td>
+          <td class="px-6 py-4">${t.total_matriculados || 0} / ${t.vagas_maximas || 30}</td>
           <td class="px-6 py-4"><span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-xs border border-emerald-500/20">${t.atividade || "Geral"}</span></td>
       `;
       tabela.appendChild(tr);
