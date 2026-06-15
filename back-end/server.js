@@ -67,8 +67,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
-
 app.post("/api/treinos", async (req, res) => {
   const { id_aluno, nome_programa, objetivo, observacoes_gerais } = req.body;
   const client = await pool.connect();
@@ -115,7 +113,83 @@ app.get("/api/turmas", async (req, res) => {
   }
 });
 
-app.get('/api/instrutores/:id_instrutor/turmas', async (req, res) => {
+// Buscar dados consolidados do Aluno (Perfil, Ficha de Treino e Turmas Ativas)
+app.get("/api/alunos/:id/dashboard", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const alunoQuery = `
+      SELECT 
+        a.id_aluno, a.nome, a.cpf, a.data_nascimento, a.telefone_fixo,
+        pt.nome_programa, pt.objetivo, pt.observacoes_gerais
+      FROM ALUNO a
+      LEFT JOIN PLANO_TREINO pt ON a.id_plano_treino = pt.id_plano_treino
+      WHERE a.id_aluno = $1
+    `;
+    const alunoResult = await pool.query(alunoQuery, [id]);
+
+    if (alunoResult.rows.length === 0) {
+      return res.status(404).json({ error: "Aluno não encontrado." });
+    }
+
+    const turmasQuery = `
+      SELECT t.id_turma, t.horario, t.sala_especifica, t.nivel_dificuldade,
+             COALESCE(agn.nome_activity, 'Geral') AS atividade
+      FROM MATRICULA m
+      INNER JOIN TURMA t ON m.id_turma = t.id_turma
+      LEFT JOIN (
+        SELECT id_atividade_grupo, MIN(nome_atividade) AS nome_activity
+        FROM ATIVIDADE_GRUPO_NOME
+        GROUP BY id_atividade_grupo
+      ) agn ON t.id_atividade_grupo = agn.id_atividade_grupo
+      WHERE m.id_aluno = $1 AND m.status_presenca = 'Ativo'
+    `;
+    const turmasResult = await pool.query(turmasQuery, [id]);
+
+    res.json({
+      perfil: {
+        id_aluno: alunoResult.rows[0].id_aluno,
+        nome: alunoResult.rows[0].nome,
+        cpf: alunoResult.rows[0].cpf,
+        data_nascimento: alunoResult.rows[0].data_nascimento,
+        telefone_fixo: alunoResult.rows[0].telefone_fixo,
+      },
+      treino: alunoResult.rows[0].nome_programa
+        ? {
+            nome_programa: alunoResult.rows[0].nome_programa,
+            objetivo:
+              alunoResult.rows[0].objective || alunoResult.rows[0].objetivo,
+            observacoes_gerais: alunoResult.rows[0].observacoes_gerais,
+          }
+        : null,
+      turmas: turmasResult.rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Atualizar dados cadastrais do próprio Aluno
+app.put("/api/alunos/:id/perfil", async (req, res) => {
+  const { id } = req.params;
+  const { nome, telefone_fixo, senha } = req.body;
+  try {
+    const query = `
+      UPDATE ALUNO 
+      SET nome = $1, 
+          telefone_fixo = $2, 
+          senha = COALESCE(NULLIF($3, ''), senha)
+      WHERE id_aluno = $4 
+      RETURNING id_aluno, nome, telefone_fixo
+    `;
+    const result = await pool.query(query, [nome, telefone_fixo, senha, id]);
+    res.status(200).json({ sucesso: true, aluno: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/instrutores/:id_instrutor/turmas", async (req, res) => {
   const { id_instrutor } = req.params;
   try {
     const query = `
@@ -143,7 +217,7 @@ app.get('/api/instrutores/:id_instrutor/turmas', async (req, res) => {
   }
 });
 
-app.get('/api/instrutores/:id_instrutor/alunos', async (req, res) => {
+app.get("/api/instrutores/:id_instrutor/alunos", async (req, res) => {
   const { id_instrutor } = req.params;
   try {
     const query = `
@@ -173,7 +247,6 @@ app.get('/api/instrutores/:id_instrutor/alunos', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Listar todos os alunos
 app.get("/api/alunos", async (req, res) => {
@@ -305,20 +378,16 @@ app.delete("/api/instrutores/:id_funcionario", async (req, res) => {
     const result = await pool.query(query, [id_funcionario]);
 
     if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({
-          sucesso: false,
-          mensagem: "Funcionário/Instrutor não encontrado.",
-        });
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: "Funcionário/Instrutor não encontrado.",
+      });
     }
 
-    res
-      .status(200)
-      .json({
-        sucesso: true,
-        mensagem: "Instrutor removido permanentemente do sistema.",
-      });
+    res.status(200).json({
+      sucesso: true,
+      mensagem: "Instrutor removido permanentemente do sistema.",
+    });
   } catch (err) {
     console.error("Erro ao excluir instrutor:", err);
     res.status(500).json({ error: err.message });
