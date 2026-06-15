@@ -115,6 +115,34 @@ app.get("/api/turmas", async (req, res) => {
   }
 });
 
+app.get('/api/instrutores/:id_instrutor/turmas', async (req, res) => {
+  const { id_instrutor } = req.params;
+  try {
+    const query = `
+      SELECT DISTINCT
+        t.id_turma,
+        t.horario,
+        t.vagas_maximas,
+        COALESCE(agn.nome_activity, 'Geral') AS atividade,
+        (SELECT COUNT(*) FROM MATRICULA WHERE id_turma = t.id_turma) AS total_alunos
+      FROM TURMA t
+      INNER JOIN MATRICULA m ON t.id_turma = m.id_turma
+      LEFT JOIN (
+        SELECT id_atividade_grupo, MIN(nome_atividade) AS nome_activity
+        FROM ATIVIDADE_GRUPO_NOME
+        GROUP BY id_atividade_grupo
+      ) agn ON t.id_atividade_grupo = agn.id_atividade_grupo
+      WHERE m.id_instrutor = $1
+      ORDER BY t.id_turma ASC
+    `;
+    const result = await pool.query(query, [id_instrutor]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/instrutores/:id_instrutor/alunos', async (req, res) => {
   const { id_instrutor } = req.params;
   try {
